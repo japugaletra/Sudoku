@@ -1,0 +1,132 @@
+* {
+	padding: 0px;
+	margin: 0px;
+	font-family: Times New Roman;	
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	min-height: 100%
+}
+
+#gameContainer {
+	text-align: center;
+	position: relative;
+	margin: auto;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#gameHeader {
+	text-align: left;
+	width: 100%;
+	text-align: bottom;
+}
+	#showMarkings {
+		position: absolute;
+		display: inline-block;
+		height: 100%;
+		text-align: center;
+		cursor: pointer;
+	}
+
+	#timer {
+		display: inline-block;
+		text-align: center;
+		width: 80%;
+		height: 100%;
+	}
+
+	#pause {
+		position: absolute;
+		display: inline-block;
+		height: 100%;
+		text-align: center;
+		cursor: pointer;
+	}
+
+#SudokuBoard {
+	position: relative;
+	text-align: center;
+	line-height: 0px;
+	display:inline-block;
+}
+
+#buttons {
+	position: relative;
+	/*background: yellow;*/
+	display: inline-block;
+	text-align: center;
+}
+	.buttonContainer {
+		position: relative;
+		text-align: center;
+		display: inline-block;
+	}
+
+	.button {
+		background: rgb(230,230,230);
+		border: 1px solid rgb(200,200,200);
+		display: inline-block;
+		text-align: center;
+		cursor: pointer;
+	}
+		.button.number {
+			color: rgb(50,50,50);
+		}
+
+.square {
+	position: relative;
+	background: black;
+	width: calc(100%/3 - 2px);
+	height: calc(100%/3 - 2px);
+	display: inline-block;
+	border: 1px solid black;
+	line-height: 0px;
+}
+
+.cell {
+	background: white;
+	width: calc(100%/3 - 2px);
+	height: calc(100%/3 - 2px);
+	display: block;
+	float: left;
+	border: 1px solid black;
+	line-height: 110%;
+	cursor: default;
+}
+
+	.pencilContainer {
+		position: relative;
+		top: 0;
+		left: 0;
+		width:  100%;
+		height: 100%;
+	}
+
+	.pencilContainer .pencilBlock {
+		width: calc(100%/3);
+		height: calc(100%/3);
+		float: left;
+		font-size: calc(100%/3);
+		line-height: 110%;
+		color: rgb(80,80,80);
+	}
+
+	.penBlock {
+		position: relative;
+		top: -100%;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		font-size: : calc(80%/3);
+		line-height: 110%;
+
+	}
