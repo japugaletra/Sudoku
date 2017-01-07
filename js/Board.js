@@ -41,16 +41,16 @@ class Board {
 			}
 		}
 
+		this.CellSubsetter = new CellSubsetter();
 		this.BoardUIManager = new BoardUIManager(this);
 		this.Timer = new Timer();
 		this.Solver = new Solver();
-		this.CellSubsetter = new CellSubsetter();
 
 		this.generate();
 	}
 
 	countNumberOccurancesPerBox(num) {
-		const cellsWithNum = this.getCellsWithValue(num);
+		const cellsWithNum = this.CellSubsetter.getCellsWithValue(this.cells, num);
 		const occurancesPerBox = zerosArray(9);
 
 		cellsWithNum.forEach((cell) => {
@@ -339,99 +339,8 @@ class Board {
 	* Cell Array Getters
 	**/
 
-	getColumn(columnNumber) {
-		const columnArray = [];
-
-		for(let cell = 0; cell < 9; cell++) {
-			/**
-			*	3*(floor(cell/3)) calculates which row the box is in (0,1 or 2)
-			*	floor(this.column/3) calculates which column the box is in
-			*	EG:
-			*		For the top-right cell in the middle square: c42 (column = 5)
-			*		We would expect cell Box to be 1, 4 and 7.
-			*		For cell = 8
-			*		floor(8/3) = 2, 3*2 = 6 + floor(5/3)
-			*		floor(5/3) = 1, 6 + 1 = 7
-			**/
-			const cellBox = 3*(Math.floor(cell/3)) + Math.floor(columnNumber/3);
-			/**
-			*	cell % 3 because the counters reset every new box, and 3 to a box
-			*	3*(cell % 3) to calculate the row's start
-			*	this.column % 3 for the horizontal adjustment based on current column.
-			*	EG:
-			*	For the top-right cell in the middle square: c42 (column = 5)
-			*		For cell = 7
-			*		We would expect checkCellId to be 5
-			*		7 % 3 = 1 * 3 = 3
-			*		5 % 3 = 2 + 3 = 5
-			**/
-			const cellId = 3*(cell % 3) + columnNumber % 3;
-
-			columnArray.push(this.cells[cellBox][cellId]);
-		}
-
-		return columnArray;
-	}
-
-	getRow(rowNumber) {
-		const rowArray = [];
-
-		for(let cell = 0; cell < 9; cell++) {
-			/**
-			*	Logic similar to getAllColumns.
-			*	Differences are that the row is multiplied by 3 instead of the cell
-			**/
-			const cellBox = Math.floor(cell/3) + 3*(Math.floor(rowNumber/3));
-			/**
-			*	Logic similar to getAllColumns.
-			*	Differences are that the row is multiplied by 3 instead of the cell
-			**/
-			const cellId = (cell % 3) + 3*(rowNumber % 3);
-
-			rowArray.push(this.cells[cellBox][cellId]);
-		}
-
-		return rowArray;
-	}
-
-	getAllColumns() {
-		const columnsArray = [];
-
-		// For each of the 9 columns
-		for(let col = 0; col < 9; col++) {
-			columnsArray.push(this.getColumn(col));
-		}
-
-		return columnsArray;
-	}
-
-	getAllRows() {
-		const rowsArray = [];
-
-		// For each of the 9 rows
-		for(let row = 0; row < 9; row++) {
-			rowsArray.push(this.getRow(row));
-		}
-
-		return rowsArray;
-	}
-
-	getCellsWithValue(val) {
-		// Check each cell if it has the value
-		return convertArrayTo1D(this.cells).filter((cell) => {
-			if(cell.value === val) return true;
-		});
-	}
-
-	getCellsWithPencilValue(val) {
-		//Check each cell if it has the pencil value
-		return convertArrayTo1D(this.cells).filter((cell) => {
-			if(cell.pencilNumbers.indexOf(val) !== -1) return true;
-		});
-	}
-
 	getInvalidCellsByValue(val) {
-		const cellsWithVal = this.getCellsWithValue(val);
+		const cellsWithVal = this.CellSubsetter.getCellsWithValue(this.cells, val);
 		const invalidCells = this.getFilledCells();
 
 		cellsWithVal.forEach((referenceCell) => {
@@ -446,8 +355,8 @@ class Board {
 	getAllRelatedCells(referenceCell) {
 		return [
 			this.cells[referenceCell.box],
-			this.getColumn(referenceCell.column),
-			this.getRow(referenceCell.row),
+			this.CellSubsetter.getColumn(this.cells, referenceCell.column),
+			this.CellSubsetter.getRow(this.cells, referenceCell.row),
 		];
 	}
 
@@ -463,34 +372,6 @@ class Board {
 		return convertArrayTo1D(this.cells).filter((cell) => {
 			if(cell.value !== '') return cell;
 		});
-	}
-
-	getErrorCells() {
-		const errorCells = [];
-
-		const groupsToCheck = [
-			this.cells,
-			this.getAllColumns(),
-			this.getAllRows(),
-		];
-
-		groupsToCheck.forEach((group) => {
-			group.forEach((cellArray) => {
-				for(let num = 1; num <= 9; num++) {
-					const cellsWithNum = cellArray.filter((cell) => {
-						if(cell.value === num) return true;
-					});
-
-					if(cellsWithNum.length > 1) {
-						cellsWithNum.forEach((cell) => {
-							if(errorCells.indexOf(cell) === -1) errorCells.push(cell);
-						});
-					}
-				}
-			});
-		});
-
-		return errorCells;
 	}
 
 	/**
@@ -783,7 +664,7 @@ class Board {
 
 		// Highlight errors
 		if(this.settings.showErrors) {
-			this.BoardUIManager.styleErrorCells(this.getErrorCells());
+			this.BoardUIManager.styleErrorCells(this.CellSubsetter.getErrorCells(this.cells));
 		}
 
 		// When possible, highlight selected cell

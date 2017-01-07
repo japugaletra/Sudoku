@@ -92,14 +92,14 @@ class BoardUIManager {
 		if(!this.parent.settings.highlightNumbers) return;
 
 		// Highlight all numbers with selected number
-		this.parent.getCellsWithValue(selectedNumber).forEach((cell) => {
+		this.parent.CellSubsetter.getCellsWithValue(this.parent.cells, selectedNumber).forEach((cell) => {
 			cell.$element.css({
 				border: this.styles.selectedNumberBorder,
 				background: this.styles.selectedNumberBackground,
 			});
 		});
 
-		this.parent.getCellsWithPencilValue(selectedNumber).forEach((cell) => {
+		this.parent.CellSubsetter.getCellsWithPencilValue(this.parent.cells, selectedNumber).forEach((cell) => {
 			$('#'+cell.id + ' .p'+selectedNumber).css({
 				background: this.styles.selectedNumberBackground,
 			});
