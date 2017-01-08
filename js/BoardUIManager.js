@@ -1,6 +1,7 @@
 class BoardUIManager {
-	constructor(parent) {
+	constructor(parent, CellSubsetter) {
 		this.parent = parent;
+		this.CellSubsetter = CellSubsetter;
 		this.gameContainer = $("<div id='gameContainer'></div>");
 
 		this.variables = {
@@ -82,24 +83,23 @@ class BoardUIManager {
 		});
 	}
 
-	StyleForSelectedNumber() {
-		let selectedNumber = this.parent.currentSelection.number;
+	StyleForSelectedNumber(selectedNumber) {
 		$('#n'+selectedNumber).css({
 			background: this.styles.buttonPressedColor,
 		});
 
 		// If Setting to highlight all numbers is off, return here
-		if(!this.parent.settings.highlightNumbers) return;
-
+		if(!this.parent.settings.highlighting.highlightNumbers) return;
+		
 		// Highlight all numbers with selected number
-		this.parent.CellSubsetter.getCellsWithValue(this.parent.cells, selectedNumber).forEach((cell) => {
+		this.CellSubsetter.getCellsWithValue(this.parent.cells, selectedNumber).forEach((cell) => {
 			cell.$element.css({
 				border: this.styles.selectedNumberBorder,
 				background: this.styles.selectedNumberBackground,
 			});
 		});
 
-		this.parent.CellSubsetter.getCellsWithPencilValue(this.parent.cells, selectedNumber).forEach((cell) => {
+		this.CellSubsetter.getCellsWithPencilValue(this.parent.cells, selectedNumber).forEach((cell) => {
 			$('#'+cell.id + ' .p'+selectedNumber).css({
 				background: this.styles.selectedNumberBackground,
 			});

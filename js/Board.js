@@ -18,12 +18,18 @@ class Board {
 		this.settings = {
 			difficulty,
 			onlyShowValidPositions: false,
-			highlightNumbers: true,
-			highlightRelated: true,
 			automaticallyRemovePencil: true,
-			automaticallyProgessNumbers: true,
-			skipCompletedNumbers: true,
-			showErrors: true,
+
+			highlighting: {
+				highlightNumbers: true,
+				highlightRelated: true,
+				showErrors: true,
+			},
+
+			nextNumber: {
+				automaticallyProgessNumbers: true,
+				skipCompletedNumbers: true,
+			},			
 		};
 
 		this.writeWithPencil = false;
@@ -42,7 +48,7 @@ class Board {
 		}
 
 		this.CellSubsetter = new CellSubsetter();
-		this.BoardUIManager = new BoardUIManager(this);
+		this.BoardUIManager = new BoardUIManager(this,this.CellSubsetter);
 		this.Timer = new Timer();
 		this.Solver = new Solver();
 
@@ -98,7 +104,7 @@ class Board {
 	}
 
 	checkIfWon() {
-		if(this.getEmptyCells().length == 0) {
+		if(this.CellSubsetter.getEmptyCells(this.cells).length == 0) {
 			const allCells = convertArrayTo1D(this.cells);
 
 			for(let index in allCells) {
@@ -144,7 +150,7 @@ class Board {
 		// If removing pencil marks automatically
 		if(this.settings.automaticallyRemovePencil) {
 			this.removePencilNumberFromCells(
-				this.getAllRelatedCells(cell),
+				this.CellSubsetter.getAllRelatedCells(this.cells, cell),
 				value
 			);
 		}
@@ -152,7 +158,7 @@ class Board {
 		// If automatically progressing numbers
 		if(
 			this.currentSelection.type == 'number' &&
-			this.settings.automaticallyProgessNumbers && 
+			this.settings.nextNumber.automaticallyProgessNumbers && 
 			this.checkIfNumberExistsInEachBox(value)
 		) {
 			this.onNextNumberClick();
@@ -288,7 +294,7 @@ class Board {
 
 		this.showingMarkings = !this.showingMarkings;
 		if(this.showingMarkings) {
-			this.getEmptyCells().forEach((cell) => {
+			this.CellSubsetter.getEmptyCells(this.cells).forEach((cell) => {
 				this.calculateCellPotentials(cell);
 				cell.pencilNumberArray(cell.potentialOptions);
 				cell.resetOptionArrays();
@@ -296,7 +302,7 @@ class Board {
 
 			this.BoardUIManager.onShowMarkings();
 		} else {
-			this.getEmptyCells().forEach((cell) => {
+			this.CellSubsetter.getEmptyCells(this.cells).forEach((cell) => {
 				cell.clearPencilNumbers();
 			});
 
@@ -318,7 +324,7 @@ class Board {
 			const completedNumbers = this.checkCompletedNumbers();
 
 			// Setting is enabled and all numbers are not already filled
-			if(this.settings.skipCompletedNumbers && completedNumbers.length !== 9) {
+			if(this.settings.nextNumber.skipCompletedNumbers && completedNumbers.length !== 9) {
 				while(completedNumbers.indexOf(nextNumber) !== -1) {
 					nextNumber = (nextNumber) % 9 + 1;
 				}
@@ -336,66 +342,18 @@ class Board {
 	}
 
 	/**
-	* Cell Array Getters
-	**/
-
-	getInvalidCellsByValue(val) {
-		const cellsWithVal = this.CellSubsetter.getCellsWithValue(this.cells, val);
-		const invalidCells = this.getFilledCells();
-
-		cellsWithVal.forEach((referenceCell) => {
-			this.getAllRelatedCells(referenceCell).forEach((cell) => {
-				if(invalidCells.indexOf(cell) === -1) invalidCells.push(cell);
-			});
-		});
-
-		return invalidCells;
-	}
-
-	getAllRelatedCells(referenceCell) {
-		return [
-			this.cells[referenceCell.box],
-			this.CellSubsetter.getColumn(this.cells, referenceCell.column),
-			this.CellSubsetter.getRow(this.cells, referenceCell.row),
-		];
-	}
-
-	getEmptyCells() {
-		// Check each cell if it is empty
-		return convertArrayTo1D(this.cells).filter((cell) => {
-			if(cell.value === '') return cell;
-		});
-	}
-
-	getFilledCells() {
-		// Check each cell if it has a value
-		return convertArrayTo1D(this.cells).filter((cell) => {
-			if(cell.value !== '') return cell;
-		});
-	}
-
-	/**
 	* Generation Functions
 	**/
 
 	isValueAllowedInCell(referenceCell, val) {
 		// cellGroups: Box, Column and Row of referenceCell
-		const cellGroupsToCheck = this.getAllRelatedCells(referenceCell);
+		const cellGroupsToCheck = this.CellSubsetter.getAllRelatedCells(this.cells, referenceCell);
 
 		//If a cell with the same value is found, returns false.
 		return !convertArrayTo1D(cellGroupsToCheck).find((cell) => {
 			if(cell !== referenceCell && cell.value == val) return true;
 		});
 	}
-
-	// for(let i = 1; i <= 2; i++) {
-	// 	const box = this.cells[(referenceCell.box + 3*i) % 9];
-
-	// 	this.checkIfColumnInBoxMustContainValue(box, referenceCell.column, val);
-	// }
-	// if(
-		
-	// ) return false;
 
 	calculateCellPotentials(referenceCell) {
 		// Reset Arrays
@@ -415,73 +373,9 @@ class Board {
 		return this;
 	}
 
-	// columnInBoxMustContainValue(box, column, value) {
-	// 	const columns = zerosArray(3);
-
-	// 	box.forEach((cell) => {
-	// 		if(cell.potentialOptions.indexOf(value) !== -1) {
-	// 			columns[cell.column % 3] += 1;
-	// 		}
-	// 	});
-
-	// 	return columns.every((num, index) => {
-	// 		if(index === column % 3) {
-	// 			if(num > 0) return true;
-	// 			return false;
-	// 		} else {
-	// 			if(num > 0) return false;
-	// 			return true;
-	// 		}
-	// 	})
-	// }
-
-	// rowInBoxMustContainValue(box, row, value) {
-	// 	const rows = zerosArray(3);
-
-	// 	box.forEach((cell) => {
-	// 		if(cell.potentialOptions.indexOf(value) !== -1) {
-	// 			rows[cell.row % 3] += 1;
-	// 		}
-	// 	});
-
-	// 	return rows.every((num, index) => {
-	// 		if(index === row % 3) {
-	// 			if(num > 0) return true;
-	// 			return false;
-	// 		} else {
-	// 			if(num > 0) return false;
-	// 			return true;
-	// 		}
-	// 	})
-	// }
-
-	// // Reduce this to check and change all affected, similar to recalculatedRelatedCells
-	// calculateAdvancedPotentials(referenceCell) {
-	// 	referenceCell.potentialOptions.forEach((option, index) => {
-	// 		for(let i = 1; i <= 2; i++) {
-	// 			let otherBox = this.cells[(referenceCell.box + 3*i) % 9];
-
-	// 			if(this.columnInBoxMustContainValue(otherBox, referenceCell.column, option)) {
-	// 				referenceCell.invalidOptions.push(option);
-	// 				referenceCell.potentialOptions.splice(index, 1);
-	// 				console.log('removed ', option, ' from ', referenceCell.id);
-	// 				return false;
-	// 			}
-
-	// 			otherBox = this.cells[(referenceCell.box + i) % 3 + Math.floor(referenceCell.box/3)];
-
-	// 			if(this.rowInBoxMustContainValue(otherBox, referenceCell.row, option)) {
-	// 				referenceCell.invalidOptions.push(option);
-	// 				referenceCell.potentialOptions.splice(index, 1);
-	// 				return false;
-	// 			}
-	// 		}
-	// 	});
-	// }
-
 	recalculateRelatedCellPotentials(referenceCell) {
 		//cellGroups: Box, Column and Row of referenceCell
-		const cellGroupsToCheck = this.getAllRelatedCells(referenceCell);
+		const cellGroupsToCheck = this.CellSubsetter.getAllRelatedCells(this.cells, referenceCell);
 
 		cellGroupsToCheck.forEach((cellGroup) => {
 			cellGroup.forEach((cell) => {
@@ -499,14 +393,6 @@ class Board {
 			});
 		});
 
-		// if(this.settings.difficulty === 'insane' && this.started == false) {
-		// 	convertArrayTo1D(this.cells).forEach((cell) => {
-		// 		if(cell.value === '' && cell.solutionValue === '') {
-		// 			this.calculateAdvancedPotentials(cell);
-		// 		}
-		// 	});
-		// }
-
 		return this;
 	}
 
@@ -519,12 +405,6 @@ class Board {
 				this.calculateCellPotentials(cell);
 			}
 		});
-
-		// if(this.settings.difficulty === 'insane') {
-		// 	for(let i = 0; i < clearedCells.length; i++) {
-		// 		this.calculateAdvancedPotentials(clearedCells[i]);
-		// 	}
-		// }
 
 		return this.checkMultipleSolutions(clearedCells);
 	}
@@ -642,13 +522,13 @@ class Board {
 			const cell = this.currentSelection.cell;
 
 			// Style related cells
-			if(this.settings.highlightRelated){
-				this.BoardUIManager.styleRelatedCells(this.getAllRelatedCells(cell));
+			if(this.settings.highlighting.highlightRelated) {
+				this.BoardUIManager.styleRelatedCells(this.CellSubsetter.getAllRelatedCells(this.cells, cell));
 			}
 
 			// If the selected cell has a value, also style that number
 			if(cell.value !== '') {
-				this.BoardUIManager.StyleForSelectedNumber();
+				this.BoardUIManager.StyleForSelectedNumber(cell.value);
 			}
 
 		// If selection is a number
@@ -656,14 +536,14 @@ class Board {
 
 			// grey out cells ands style for the selected number
 			if(this.settings.onlyShowValidPositions && !this.disabled) {
-				this.BoardUIManager.styleInvalidPositions(this.getInvalidCellsByValue(this.currentSelection.number));
+				this.BoardUIManager.styleInvalidPositions(this.CellSubsetter.getInvalidCellsByValue(this.cells, this.currentSelection.number));
 			}
 
-			this.BoardUIManager.StyleForSelectedNumber();
+			this.BoardUIManager.StyleForSelectedNumber(this.currentSelection.number);
 		}
 
 		// Highlight errors
-		if(this.settings.showErrors) {
+		if(this.settings.highlighting.showErrors) {
 			this.BoardUIManager.styleErrorCells(this.CellSubsetter.getErrorCells(this.cells));
 		}
 
