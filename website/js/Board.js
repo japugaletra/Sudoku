@@ -2,6 +2,7 @@
 // TODO: main menu
 // TODO: improve board creation
 // TODO: Created solver object
+// TODO: Loading Screen
 class Board {
 	constructor(difficulty = 'harder') {
 		const TOTALBOXES = 9;
@@ -117,7 +118,11 @@ class Board {
 	}
 
 	finishGame() {
+		this.styleCurrentSelection();
 		this.Timer.stop();
+		this.disabled = true;
+
+		window.setTimeout(() => {
 			alert('You won! Your time was '+$('#timer').html());
 			this.currentSelection = {
 				type: 'number',
@@ -131,9 +136,10 @@ class Board {
 					if(i === 10) this.currentSelection = null;
 					this.styleCurrentSelection();
 				},i*250);
-			}
+			}	
+		},250);
+		
 
-			this.disabled = true;
 
 	}
 

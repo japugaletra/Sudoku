@@ -57,6 +57,7 @@ body {
 	text-align: center;
 	line-height: 0px;
 	display:inline-block;
+	overflow: hidden;
 }
 
 #buttons {
@@ -88,7 +89,7 @@ body {
 	width: calc(100%/3 - 2px);
 	height: calc(100%/3 - 2px);
 	display: inline-block;
-	border: 1px solid black;
+	border: 0.5px solid black;
 	line-height: 0px;
 }
 
@@ -98,7 +99,7 @@ body {
 	height: calc(100%/3 - 2px);
 	display: block;
 	float: left;
-	border: 1px solid black;
+	border: 1px solid rgb(100,100,100);
 	line-height: 110%;
 	cursor: default;
 }

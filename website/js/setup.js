@@ -1,4 +1,5 @@
 var gameBoard;
+let touchDebounce = false;
 
 $(document).ready(() => {
 	gameBoard = new Board();
@@ -6,6 +7,18 @@ $(document).ready(() => {
 
 $(window).resize(() => {
 	gameBoard.BoardUIManager.recalculateBoardSizes({transition: true});
+});
+
+$(window).on('touchstart', (e) => {
+	if(!touchDebounce && e.originalEvent.touches.length == 2) {
+		touchDebounce = true;
+		e.preventDefault();
+		gameBoard.onNextNumberClick();
+
+		window.setTimeout(() => {
+			touchDebounce = false;
+		},100);
+	}
 });
 
 $(window).on('keydown',(e) => {

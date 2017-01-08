@@ -12,7 +12,7 @@ class BoardUIManager {
 			defaultButtonBackground: 'rgb(230,230,230)',
 			completedNumberButtonBackground: 'rgb(200,200,200)',
 			buttonPressedColor: 'rgb(253,253,253)',
-			defaultBorder: '1px solid black',
+			defaultCellBorder: '1px solid rgb(100,100,100)',
 			defaultCellBackground: 'white',
 			selectedCellBorder: '1px solid rgb(80,80,255)',
 			selectedCellBackground: 'rgb(180,180,255)',
@@ -37,12 +37,8 @@ class BoardUIManager {
 	}
 
 	removeEffects() {
-		$('.square').css({
-			border: this.styles.defaultBorder,
-		});
-
 		$('.cell').css({
-			border: this.styles.defaultBorder,
+			border: this.styles.defaultCellBorder,
 			background: this.styles.defaultCellBackground,
 		});
 
@@ -205,6 +201,7 @@ class BoardUIManager {
 
 		});
 
+		// Mainly Phones
 		if($(window).width() < $(window).height()) {
 			let rowsOfButtons = 1;
 
@@ -250,18 +247,11 @@ class BoardUIManager {
 			});
 
 			buttonSize = floorToDecimal(smallestDim/10 - 3,1);
-			const bigButtonSize = floorToDecimal(smallestDim/5 - 2,1);
 
-			// See if there is enough room for big buttons. +2 for borders
-			if($(window).height() - 0.8*smallestDim - buttonFontSize > 2*(bigButtonSize + 2)) {
-				buttonSize = bigButtonSize;
-				rowsOfButtons = 2;
-			}
-
-			if($(window).height() - buttonFontSize - rowsOfButtons*buttonSize > smallestDim) {
+			if($(window).height() - buttonFontSize - buttonSize > 0.97*smallestDim) {
 				$('#SudokuBoard').css({
-					height: '99vw',
-					width: '99vw',
+					height: '95vw',
+					width: '95vw',
 				});
 
 				$('#pause').css({
@@ -271,7 +261,28 @@ class BoardUIManager {
 				$('#showMarkings').css({
 					left: '1vw',
 				});
+				
+				// See if there is enough room for big buttons. +2 for borders
+				const remainingSpace = $(window).height() - 0.95*smallestDim - buttonFontSize - 10;
+				const scaledButton = remainingSpace/2;
+				const bigButton = buttonSize*2;
+
+				// If the buttons can be scaled to be bigger
+				if(scaledButton*5 < smallestDim && scaledButton > buttonSize) {
+					buttonSize = scaledButton;
+					rowsOfButtons = 2;
+
+				// If big buttons will fit
+				} else if(bigButton*5 < smallestDim && bigButton*2 < remainingSpace) {
+					buttonSize = bigButton;
+					rowsOfButtons = 2;
+				}
+				// if(remainingSpace/2 < smallestDim/5) {
+				// 	buttonSize = remainingSpace/2;
+				// 	rowsOfButtons = 2;
+				// }
 			}
+
 
 			$(".buttonContainer").css({
 				width: 'auto',
