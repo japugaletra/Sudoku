@@ -5,7 +5,7 @@ class Cell {
 		this.$element = $(`#${this.id}`);
 		this.value = '';
 
-		let idAsInt = parseInt(String.substr(id,1),10);
+		let idAsInt = parseInt(String.prototype.substr(id,1),10);
 
 		//Box numbered 0-8
 		this.box = Math.floor(idAsInt/10);
