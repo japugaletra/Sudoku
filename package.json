@@ -1,0 +1,21 @@
+{
+  "name": "data55",
+  "version": "0.2.5",
+  "description": "A sample Node.js app using Express 4",
+  "engines": {
+    "node": "5.9.1"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IFB299Data55/music-school-dev/"
+  },
+  "license": "MIT",
+  "author": "data55"
+}
